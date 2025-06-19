@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados del Cuestionario</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .result {
+            border-left: 5px solid #007bff;
+            background: #f9f9f9;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        button {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados del Cuestionario</h1>
+        <p><strong>Nombre del estudiante:</strong> {{ student_name }}</p>
+        <p><strong>Puntuación final:</strong> {{ score }} de 5</p>
+        <p><strong>Cambios de ventana detectados:</strong> {{ blur_count }}</p>
+        <hr>
+        {% for r in results %}
+            <div class="result">
+                <p><strong>{{ loop.index }}. {{ r.question }}</strong></p>
+                <p>Tu respuesta: {{ r.user_answer }}</p>
+                <p>Respuesta correcta: {{ r.correct_answer }}</p>
+                {% if r.is_correct %}
+                    <p class="correct">✔ Correcta</p>
+                {% else %}
+                    <p class="incorrect">✘ Incorrecta</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button onclick="descargarPDF()">📄 Descargar resultados en PDF</button>
+    </div>
+    <script>
+        function descargarPDF() {
+            fetch("/download_pdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    results: {{ results|tojson }},
+                    score: {{ score }},
+                    blur_count: {{ blur_count }},
+                    student_name: {{ student_name|tojson }}
+                })
+            })
+            .then(r => r.blob())
+            .then(b => {
+                const url = window.URL.createObjectURL(b);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "resultado_cuestionario.pdf";
+                a.click();
+            });
+        }
+    </script>
+</body>
+</html>
