@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cuestionario MongoDB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+    <script>
+        let blurCount = 0;
+        window.onblur = () => blurCount++;
+        function beforeSubmit() {
+            document.getElementById("blur_count").value = blurCount;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (
+                (e.ctrlKey && ['c', 'x', 'v', 'a', 'u', 's'].includes(e.key.toLowerCase())) ||
+                e.metaKey ||
+                e.key === 'F12'
+            ) {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cuestionario MongoDB</h1>
+        <form method="post" onsubmit="beforeSubmit()">
+            <div class="question">
+                <label for="nombre">Nombre y Apellido del Estudiante:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            {% for q in questions %}
+                <div class="question">
+                    <p><strong>{{ loop.index }}. {{ q.text }}</strong></p>
+                    {% if q.type == 'true_false' %}
+                        <label><input type="radio" name="q{{ loop.index0 }}" value="true" required> Verdadero</label>
+                        <label><input type="radio" name="q{{ loop.index0 }}" value="false"> Falso</label>
+                    {% elif q.type == 'multiple' %}
+                        {% for option in q.options %}
+                            <label><input type="checkbox" name="q{{ loop.index0 }}" value="{{ option }}"> {{ option }}</label>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <input type="hidden" id="blur_count" name="blur_count" value="0">
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+</body>
+</html>
